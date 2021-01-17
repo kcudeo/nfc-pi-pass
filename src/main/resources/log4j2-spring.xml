@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Http name="http" url="http://localhost:8002/services/collector/raw">
+            <Property name="Authorization" value="Splunk cef5c702-1bbf-4604-a5df-d850cf247160" />
+            <JsonTemplateLayout
+                    eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
+                    locationInfoEnabled="true"/>
+        </Http>
+        <Console name="Console" target="SYSTEM_OUT">
+            <JsonTemplateLayout
+                    eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
+                    locationInfoEnabled="true"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <!-- LOG everything at INFO level -->
+        <Root level="info">
+            <AppenderRef ref="Console" />
+            <AppenderRef ref="http" />
+        </Root>
+    </Loggers>
+</Configuration>
