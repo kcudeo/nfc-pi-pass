@@ -1,0 +1,70 @@
+@startuml
+
+autonumber
+
+title "Standard Workflow"
+
+box "User"
+participant User as U order 10
+participant "Mobile Device" as M order 15
+end box
+
+box "uFR Nano"
+participant NFC order 20
+end box
+
+box "Raspberry Pi"
+participant WebService order 30
+participant PiPass order 40
+participant DB order 50
+end box
+
+box "External 2FA Service"
+participant Twilio order 60
+end box
+
+box "Affected Host"
+participant "As Keyboard Output" as K order 70
+end box
+
+group Required For Output
+
+group NFC Tap
+
+U -> NFC : Registered Media
+PiPass -> NFC : Polling Service
+NFC -> PiPass : Read Media\nUID + Text NDEF
+PiPass -> DB : Load User
+DB -> PiPass : Return User Records
+PiPass -> Twilio : Request 2FA Code
+Twilio -> M : Send 2FA Code
+
+end group
+
+group Web Interface
+
+U -> WebService : <b>(Logged In*)</b> User Request
+Note right: Logged in simply means having saved the registered NFC media UID\nto browser local storage.
+WebService -> PiPass: Request Credential List
+PiPass -> DB : Search
+DB --> PiPass
+PiPass --> WebService
+WebService --> U
+
+
+M -> U : Obtain 2FA Code
+U -> WebService : Provide 2FA Code + Password Selection
+Note right: Options present include:\n- Username\n- Username + Password\n- Enter or Not\n- Etc...
+WebService -> PiPass : Validate 2FA Code
+PiPass -> DB : Request Encrypted Credentials
+DB --> PiPass
+PiPass -> PiPass: Decrypt using GPG w/NDEF Password
+PiPass -> K : Fulfill Request
+
+end group
+
+
+end group
+
+
+@enduml
