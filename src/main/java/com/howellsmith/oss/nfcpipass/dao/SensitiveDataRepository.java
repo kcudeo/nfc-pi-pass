@@ -1,18 +1,16 @@
 package com.howellsmith.oss.nfcpipass.dao;
 
+import com.howellsmith.oss.nfcpipass.model.SensitiveData;
 import com.howellsmith.oss.nfcpipass.model.User;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
 /**
- * Simple User Data Access Object
+ * Simple SensitiveData Data Access Object
  */
 @Repository
-public interface UserRepository extends MongoRepository<User, String> {
+public interface SensitiveDataRepository extends MongoRepository<SensitiveData, String> {
 
-    User findByRegisteredTagContaining(String tag);
+    SensitiveData findByTagId(String tagId);
 
-    User findByCellPhone(String cellPhone);
-
-    User findByEmail(String email);
 }
