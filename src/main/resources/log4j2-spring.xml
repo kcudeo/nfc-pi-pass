@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <Configuration>
+    <Properties>
+        <Property name="splunkHost">localhost</Property>
+        <Property name="splunkPort">48088</Property>
+        <Property name="splunkToken">019f60ac-71e1-4871-950f-eb85a360a843</Property>
+    </Properties>
     <Appenders>
-        <Http name="http" url="http://localhost:8002/services/collector/raw">
-            <Property name="Authorization" value="Splunk cef5c702-1bbf-4604-a5df-d850cf247160" />
+        <Http name="http" url="http://${splunkHost}:${splunkPort}/services/collector/raw">
+            <Property name="Authorization" value="Splunk ${splunkToken}" />
             <JsonTemplateLayout
                     eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
                     locationInfoEnabled="true"/>
@@ -12,12 +17,15 @@
                     eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
                     locationInfoEnabled="true"/>
         </Console>
+        <Async name="async">
+            <AppenderRef ref="http"/>
+        </Async>
     </Appenders>
     <Loggers>
         <!-- LOG everything at INFO level -->
         <Root level="info">
             <AppenderRef ref="Console" />
-            <AppenderRef ref="http" />
+            <AppenderRef ref="async" />
         </Root>
     </Loggers>
 </Configuration>
