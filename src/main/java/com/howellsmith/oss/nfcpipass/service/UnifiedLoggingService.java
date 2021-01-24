@@ -9,8 +9,11 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Objects;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
-import static com.howellsmith.oss.nfcpipass.config.StringConstants.ILLEGAL_ARGUMENT_NULL_MESSAGE;
+import static com.howellsmith.oss.nfcpipass.config.StringConstants.MESSAGE_ILLEGAL_ARGUMENT_NULL;
 import static org.apache.logging.log4j.spi.StandardLevel.DEBUG;
 import static org.apache.logging.log4j.spi.StandardLevel.ERROR;
 import static org.apache.logging.log4j.spi.StandardLevel.FATAL;
@@ -63,8 +66,8 @@ public class UnifiedLoggingService {
 
     private void writeLog(StandardLevel level, Map<String, Object> objectMap) {
 
-        if(Objects.isNull(objectMap)){
-            throw new IllegalArgumentException(ILLEGAL_ARGUMENT_NULL_MESSAGE);
+        if (Objects.isNull(objectMap)) {
+            throw new IllegalArgumentException(MESSAGE_ILLEGAL_ARGUMENT_NULL);
         }
 
         objectMap.putAll(getSource());
@@ -112,4 +115,18 @@ public class UnifiedLoggingService {
         }
     }
 
+    /**
+     * Returns an ordered map of the stacktrace associated with the provided throwable. This is useful to add to a log
+     * message in the case of an unexpected error.
+     *
+     * @param throwable The exception encountered.
+     * @return Returns an Integer -> String Map that contains one entry per line in the stack trace of the exception
+     * provided.
+     */
+    public static Map<Integer, String> getStackMap(Throwable throwable) {
+        var elements = throwable.getStackTrace();
+        return IntStream.range(0, elements.length)
+                .boxed()
+                .collect(Collectors.toMap(Function.identity(), i -> elements[i].toString()));
+    }
 }
