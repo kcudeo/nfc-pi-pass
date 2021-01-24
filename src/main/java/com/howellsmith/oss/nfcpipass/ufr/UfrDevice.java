@@ -8,7 +8,7 @@ import com.sun.jna.ptr.ShortByReference;
 /**
  * Native Interface for D-Logic uFR Series NFC Devices
  */
-public interface UfrFunctions extends Library {
+public interface UfrDevice extends Library {
 
     String UFR_Status2String(int status);
 
