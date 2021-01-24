@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration xmlns:context="http://www.springframework.org/schema/context">
+    <context:property-placeholder />
     <Properties>
-        <Property name="splunkHost">localhost</Property>
-        <Property name="splunkPort">48088</Property>
-        <Property name="splunkToken">019f60ac-71e1-4871-950f-eb85a360a843</Property>
+        <Property name="splunkHost">${env:SPLUNK_HOST}</Property>
+        <Property name="splunkPort">${env:SPLUNK_PORT}</Property>
+        <Property name="splunkToken">${env:SPLUNK_TOKEN}</Property>
     </Properties>
     <Appenders>
         <Http name="http" url="http://${splunkHost}:${splunkPort}/services/collector/raw">

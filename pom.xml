@@ -14,7 +14,7 @@
     <description>Use NFC and web tech to manage passwords.</description>
 
     <properties>
-        <java.version>11</java.version>
+        <java.version>15</java.version>
         <jackson.version>2.12.1</jackson.version>
     </properties>
 

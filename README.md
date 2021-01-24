@@ -26,3 +26,22 @@ aim to create.
 - Java 14
 
 
+---
+
+## Usage
+
+### Requirements
+
+#### Java 15 +
+Developed using `Java.net 15.0.2-open` [SDKMAN](https://sdkman.io/)
+
+#### Environment Variables
+I always use [Splunk](https://hub.docker.com/r/splunk/splunk/) to keep track of my logs. It's free, easy to use, and if 
+provided with properly formatted data, very easy to search with. If you have no desire to use Splunk for logging, please 
+edit `log4j2-spring.xml` and remove the HTTP & Async Appenders. You might also want to change the logging back to 
+standard format instead of logging in JSON... in that case, simply delete the `log4j2-spring.xml` file and use the 
+default config which is very easy to read.
+
+- **SPLUNK_HOST**: The ip/host of the Splunk server.
+- **SPLUNK_PORT**: The port number used for the configured HTTP Event Collector
+- **SPLUNK_TOKEN**: The token used for the configured HTTP Event Collector
