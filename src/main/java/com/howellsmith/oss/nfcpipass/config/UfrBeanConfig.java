@@ -6,6 +6,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.BeanCreationException;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import static com.howellsmith.oss.nfcpipass.config.StringConstants.MESSAGE_NATIVE_LIBRARY_LOAD_FAILURE;
 import static com.howellsmith.oss.nfcpipass.ufr.Utilities.NATIVE_LIBRARY_ABSOLUTE_PATH;
@@ -16,6 +17,7 @@ import static org.apache.commons.lang3.exception.ExceptionUtils.getStackTrace;
  * uFR Bean Creation and Configuration
  */
 @Log4j2
+@EnableScheduling
 @Configuration
 public class UfrBeanConfig {
 
