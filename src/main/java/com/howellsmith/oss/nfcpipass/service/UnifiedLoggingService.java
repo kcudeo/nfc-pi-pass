@@ -1,8 +1,14 @@
 package com.howellsmith.oss.nfcpipass.service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.apache.logging.log4j.spi.StandardLevel;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -23,7 +29,7 @@ import static org.apache.logging.log4j.spi.StandardLevel.WARN;
 
 /**
  * The Unified Logging Service is designed to accept a series of arguments that can be translated into an easy to
- * search JSON log message that seamlessly integrates
+ * search JSON log message that seamlessly integrates with log ingestion systems.
  *
  * @author Taylor Howellsmith
  */
@@ -33,6 +39,7 @@ public class UnifiedLoggingService {
 
     private static final String CLASS = "_class";
     private static final String LINE = "_lineNumber";
+    private static final String METHOD = "_method";
 
     private final ObjectMapper mapper;
 
@@ -40,55 +47,58 @@ public class UnifiedLoggingService {
         this.mapper = objectMapper;
     }
 
-    public void info(Map<String, Object> objectMap) {
-        writeLog(INFO, objectMap);
+    public void info(Object o) {
+        writeLog(INFO, o);
     }
 
-    public void warn(Map<String, Object> objectMap) {
-        writeLog(WARN, objectMap);
+    public void warn(Object o) {
+        writeLog(WARN, o);
     }
 
-    public void error(Map<String, Object> objectMap) {
-        writeLog(ERROR, objectMap);
+    public void error(Object o) {
+        writeLog(ERROR, o);
     }
 
-    public void debug(Map<String, Object> objectMap) {
-        writeLog(DEBUG, objectMap);
+    public void debug(Object o) {
+        writeLog(DEBUG, o);
     }
 
-    public void trace(Map<String, Object> objectMap) {
-        writeLog(TRACE, objectMap);
+    public void trace(Object o) {
+        writeLog(TRACE, o);
     }
 
-    public void fatal(Map<String, Object> objectMap) {
-        writeLog(FATAL, objectMap);
+    public void fatal(Object o) {
+        writeLog(FATAL, o);
     }
 
-    private void writeLog(StandardLevel level, Map<String, Object> objectMap) {
+    private void writeLog(StandardLevel level, Object o) {
 
-        if (Objects.isNull(objectMap)) {
+        if (Objects.isNull(o))
             throw new IllegalArgumentException(MESSAGE_ILLEGAL_ARGUMENT_NULL);
-        }
 
-        objectMap.putAll(getSource());
+        var wrapped = MessageWrapper.builder()
+                .source(getSource())
+                .data(o)
+                .build();
+
         switch (level) {
             case INFO:
-                log.info(format(objectMap));
+                log.info(new ObjectMessage(wrapped));
                 break;
             case WARN:
-                log.warn(format(objectMap));
+                log.warn(new ObjectMessage(wrapped));
                 break;
             case ERROR:
-                log.error(format(objectMap));
+                log.error(new ObjectMessage(wrapped));
                 break;
             case DEBUG:
-                log.debug(format(objectMap));
+                log.debug(new ObjectMessage(wrapped));
                 break;
             case TRACE:
-                log.trace(format(objectMap));
+                log.trace(new ObjectMessage(wrapped));
                 break;
             case FATAL:
-                log.fatal(format(objectMap));
+                log.fatal(new ObjectMessage(wrapped));
                 break;
         }
     }
@@ -99,20 +109,10 @@ public class UnifiedLoggingService {
      * @return Returns a list of Pairs that contain the calling class name and line number.
      */
     private Map<String, Object> getSource() {
-        var clazz = Thread.currentThread().getStackTrace()[5].getClassName();
-        var lineNumber = Thread.currentThread().getStackTrace()[5].getLineNumber();
-        return Map.of(CLASS, clazz, LINE, lineNumber);
-    }
-
-    /**
-     * Private utility method to transform the object map into a string.
-     */
-    private String format(Map<String, Object> objectMap) {
-        try {
-            return mapper.writeValueAsString(objectMap);
-        } catch (JsonProcessingException e) {
-            return objectMap.toString();
-        }
+        var clazz = Thread.currentThread().getStackTrace()[4].getClassName();
+        var lineNumber = Thread.currentThread().getStackTrace()[4].getLineNumber();
+        var method = Thread.currentThread().getStackTrace()[4].getMethodName();
+        return Map.of(CLASS, clazz, LINE, lineNumber, METHOD, method);
     }
 
     /**
@@ -128,5 +128,25 @@ public class UnifiedLoggingService {
         return IntStream.range(0, elements.length)
                 .boxed()
                 .collect(Collectors.toMap(Function.identity(), i -> elements[i].toString()));
+    }
+
+    /**
+     * Simple wrapper class to hold the source information and the passed in object.
+     */
+    @Builder
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    private static class MessageWrapper {
+
+        private static final String SOURCE = "_source";
+        private static final String DATA = "_data";
+
+        @JsonProperty(SOURCE)
+        private Map<String, Object> source;
+
+        @JsonProperty(DATA)
+        private Object data;
+
     }
 }
