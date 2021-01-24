@@ -9,14 +9,20 @@
     <Appenders>
         <Http name="http" url="http://${splunkHost}:${splunkPort}/services/collector/raw">
             <Property name="Authorization" value="Splunk ${splunkToken}" />
-            <JsonTemplateLayout
-                    eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
-                    locationInfoEnabled="true"/>
+            <JSONLayout
+                    compact="true"
+                    eventEol="true"
+                    locationInfo="false"
+                    includeTimeMillis="true"
+                    objectMessageAsJsonObject="true"/>
         </Http>
         <Console name="Console" target="SYSTEM_OUT">
-            <JsonTemplateLayout
-                    eventTemplateUri="classpath:LogstashJsonEventLayoutV1.json"
-                    locationInfoEnabled="true"/>
+            <JSONLayout
+                    compact="true"
+                    eventEol="true"
+                    locationInfo="false"
+                    includeTimeMillis="true"
+                    objectMessageAsJsonObject="true"/>
         </Console>
         <Async name="async">
             <AppenderRef ref="http"/>
