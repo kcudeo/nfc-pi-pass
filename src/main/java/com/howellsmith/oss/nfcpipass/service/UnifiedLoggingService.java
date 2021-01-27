@@ -41,12 +41,6 @@ public class UnifiedLoggingService {
     private static final String LINE = "_lineNumber";
     private static final String METHOD = "_method";
 
-    private final ObjectMapper mapper;
-
-    public UnifiedLoggingService(@Qualifier("forgivingMapper") ObjectMapper objectMapper) {
-        this.mapper = objectMapper;
-    }
-
     public void info(Object o) {
         writeLog(INFO, o);
     }
@@ -82,24 +76,12 @@ public class UnifiedLoggingService {
                 .build();
 
         switch (level) {
-            case INFO:
-                log.info(new ObjectMessage(wrapped));
-                break;
-            case WARN:
-                log.warn(new ObjectMessage(wrapped));
-                break;
-            case ERROR:
-                log.error(new ObjectMessage(wrapped));
-                break;
-            case DEBUG:
-                log.debug(new ObjectMessage(wrapped));
-                break;
-            case TRACE:
-                log.trace(new ObjectMessage(wrapped));
-                break;
-            case FATAL:
-                log.fatal(new ObjectMessage(wrapped));
-                break;
+            case INFO -> log.info(new ObjectMessage(wrapped));
+            case WARN -> log.warn(new ObjectMessage(wrapped));
+            case ERROR -> log.error(new ObjectMessage(wrapped));
+            case DEBUG -> log.debug(new ObjectMessage(wrapped));
+            case TRACE -> log.trace(new ObjectMessage(wrapped));
+            case FATAL -> log.fatal(new ObjectMessage(wrapped));
         }
     }
 
