@@ -192,7 +192,7 @@ public class HardwareManagementService {
      */
     @Builder
     @Data
-    private static class DeviceStatusLogWrapper {
+    static class DeviceStatusLogWrapper {
 
         @JsonProperty(LOG_MARKER_KEY)
         private String marker;
