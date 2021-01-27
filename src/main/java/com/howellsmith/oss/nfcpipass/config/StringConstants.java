@@ -22,6 +22,7 @@ public class StringConstants {
     public static final String MARKER_CRITICAL_INFORMATION = "CRITICAL_INFORMATION_MARKER";
     public static final String MARKER_ILLEGAL_ARGUMENT_NULL = "ILLEGAL_ARGUMENT_NULL_MARKER";
     public static final String MARKER_UNEXPECTED_EXCEPTION = "MARKER_UNEXPECTED_EXCEPTION";
+    public static final String MARKER_UNEXPECTED_READER_STATUS = "MARKER_UNEXPECTED_READER_STATUS";
 
     public static final String MESSAGE_ILLEGAL_ARGUMENT_NULL = "The supplied argument cannot be null.";
     public static final String MESSAGE_NATIVE_LIBRARY_LOAD_FAILURE = "Failed to load the required native library.";
@@ -29,5 +30,8 @@ public class StringConstants {
     public static final String MESSAGE_NFC_READER_CONNECT_SUCCESS = "Successfully connected the uFR NFC reader.";
     public static final String MESSAGE_NFC_READER_CONNECT_FAILURE = "Unable to connect to the uFR NFC reader.";
     public static final String MESSAGE_SLEEP_INTERRUPTED_DURING_RESET = "Thread sleep interrupted during device reset waiting period.";
+    public static final String MESSAGE_NFC_READER_READ_NDEF_FAIL = "Failed to read the NDEF Text record from tag or no NDEF Text record was present.";
+    public static final String MESSAGE_UNEXPECTED_READER_STATUS = "The status code obtained from the reader was not expected.";
+
 
 }
