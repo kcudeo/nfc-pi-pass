@@ -51,10 +51,7 @@ public class HardwareManagementService {
     private final UfrDevice device;
     private final ApplicationEventPublisher publisher;
 
-    private final int connectedDevice = 0;
     private final int[] workingDeviceType = new int[2];
-
-    // check for nfc...
     private final ByteByReference cardId = new ByteByReference();
     private final ByteByReference uidSize = new ByteByReference();
     private final byte[] uid = new byte[8];
