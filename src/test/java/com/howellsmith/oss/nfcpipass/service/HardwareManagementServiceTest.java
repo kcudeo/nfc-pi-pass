@@ -8,17 +8,13 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
 import org.mockito.Mockito;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.context.ApplicationEvent;
 import org.springframework.context.ApplicationEventPublisher;
 
-import javax.swing.text.TabableView;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.stream.IntStream;
 
 import static com.howellsmith.oss.nfcpipass.config.StringConstants.MARKER_CRITICAL_INFORMATION;
 import static com.howellsmith.oss.nfcpipass.config.StringConstants.MESSAGE_NFC_READER_CONNECT_SUCCESS;
@@ -75,7 +71,7 @@ public class HardwareManagementServiceTest {
             var uidSize = invocation.getArgument(2, ByteByReference.class);
 
             cardId.setValue((byte) 0xFF);
-            for(int i = 0; i < 8; i++){
+            for (int i = 0; i < 8; i++) {
                 uid[i] = (byte) i;
             }
             uidSize.setValue((byte) 0x08);
@@ -108,7 +104,7 @@ public class HardwareManagementServiceTest {
         DeviceConnectionStatusEvent expectedEvent0 = null;
         TagInFieldEvent expectedEvent1 = null;
 
-        for(var event: capturedPublishEvents){
+        for (var event : capturedPublishEvents) {
             var clazz = event.getClass();
             switch (clazz.getSimpleName()) {
                 case "DeviceConnectionStatusEvent" -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
