@@ -1,7 +1,6 @@
 package com.howellsmith.oss.nfcpipass.dao;
 
-import com.howellsmith.oss.nfcpipass.model.SensitiveData;
-import com.howellsmith.oss.nfcpipass.model.User;
+import com.howellsmith.oss.nfcpipass.model.domain.SensitiveData;
 import org.springframework.data.mongodb.repository.MongoRepository;
 import org.springframework.stereotype.Repository;
 
