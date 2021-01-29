@@ -149,6 +149,72 @@ public class HardwareManagementServiceTest {
         Mockito.verify(device, times(1)).ReadNdefRecord_Text(any());
         //</editor-fold>
 
+        //<editor-fold desc="Path -> Yes NFC Connect, Yes NFC card in field, No NDEF text record.">
+        Mockito.reset(device);
+
+        // Define get reader type return.
+        Mockito.doAnswer((Answer<Integer>) invocation -> {
+
+            int[] uid = invocation.getArgument(0);
+            uid[0] = 1;
+            uid[1] = 1;
+
+            return DL_OK;
+        }).when(device).GetReaderType(any(int[].class));
+        Mockito.doAnswer((Answer<Integer>) invocation -> {
+
+            var cardId = invocation.getArgument(0, ByteByReference.class);
+            byte[] uid = invocation.getArgument(1);
+            var uidSize = invocation.getArgument(2, ByteByReference.class);
+
+            cardId.setValue((byte) 0xFF);
+            for (int i = 0; i < 8; i++) {
+                uid[i] = (byte) i;
+            }
+            uidSize.setValue((byte) 0x08);
+
+            return DL_OK;
+        }).when(device).GetCardIdEx(any(), any(), any());
+        when(device.ReadNdefRecord_Text(any())).thenReturn(0xFF);
+
+        // Setup argument captors for log and event validation
+        var publishCaptor_BADCARD = ArgumentCaptor.forClass(ApplicationEvent.class);
+        var logCaptor_BADCARD = ArgumentCaptor
+                .forClass(HardwareManagementService.DeviceStatusLogWrapper.class);
+
+        poll.invoke(service);
+
+        Mockito.verify(publisher, times(4)).publishEvent(publishCaptor_BADCARD.capture());
+        Mockito.verify(log, times(1)).error(logCaptor_BADCARD.capture());
+
+        var capturedPublishEvents_BADCARD = publishCaptor_BADCARD.getAllValues();
+        capturedPublishEvents_BADCARD.removeAll(capturedPublishEvents);
+
+        var capturedLogEvent_BADCARD = logCaptor_BADCARD.getAllValues();
+        capturedLogEvent_BADCARD.removeAll(capturedLogEvents);
+
+        assertEquals(1, capturedLogEvent_BADCARD.size());
+        assertEquals(2, capturedPublishEvents_BADCARD.size());
+
+        expectedEvent0 = null;
+        expectedEvent1 = null;
+
+        for (var event : capturedPublishEvents_BADCARD) {
+            var clazz = event.getClass();
+            switch (clazz.getSimpleName()) {
+                case "DeviceConnectionStatusEvent" -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
+                case "TagInFieldEvent" -> expectedEvent1 = (TagInFieldEvent) event;
+            }
+        }
+        assertNotNull(expectedEvent0);
+        assertTrue(expectedEvent0.isConnected());
+
+        assertNotNull(expectedEvent1);
+        assertTrue(expectedEvent1.isDeviceInField());
+        assertEquals(0x0706050403020100L, expectedEvent1.getUid());
+        assertNull(expectedEvent1.getNdef());
+        //</editor-fold>
+
         //<editor-fold desc="Path -> Yes NFC Connect, No NFC card in field.">
         Mockito.reset(device);
 
@@ -170,14 +236,16 @@ public class HardwareManagementServiceTest {
 
         poll.invoke(service);
 
-        Mockito.verify(publisher, times(4)).publishEvent(publishCaptor_NOCARD.capture());
+        Mockito.verify(publisher, times(6)).publishEvent(publishCaptor_NOCARD.capture());
         Mockito.verify(log, times(1)).info(logCaptor_NOCARD.capture());
 
         var capturedPublishEvents_NOCARD = publishCaptor_NOCARD.getAllValues();
         capturedPublishEvents_NOCARD.removeAll(capturedPublishEvents);
+        capturedPublishEvents_NOCARD.removeAll(capturedPublishEvents_BADCARD);
 
         var capturedLogEvent_NOCARD = logCaptor_NOCARD.getAllValues();
         capturedLogEvent_NOCARD.removeAll(capturedLogEvents);
+        capturedLogEvent_NOCARD.removeAll(capturedLogEvent_BADCARD);
 
         assertEquals(0, capturedLogEvent_NOCARD.size());
         assertEquals(2, capturedPublishEvents_NOCARD.size());
@@ -222,15 +290,17 @@ public class HardwareManagementServiceTest {
 
         poll.invoke(service);
 
-        Mockito.verify(publisher, times(6)).publishEvent(publishCaptor_UNKNOWN.capture());
-        Mockito.verify(log, times(1)).error(logCaptor_UNKNOWN.capture());
+        Mockito.verify(publisher, times(8)).publishEvent(publishCaptor_UNKNOWN.capture());
+        Mockito.verify(log, times(2)).error(logCaptor_UNKNOWN.capture());
 
         var capturedPublishEvents_UNKNOWN = publishCaptor_UNKNOWN.getAllValues();
         capturedPublishEvents_UNKNOWN.removeAll(capturedPublishEvents);
+        capturedPublishEvents_UNKNOWN.removeAll(capturedPublishEvents_BADCARD);
         capturedPublishEvents_UNKNOWN.removeAll(capturedPublishEvents_NOCARD);
 
         var capturedLogEvent_UNKNOWN = logCaptor_UNKNOWN.getAllValues();
         capturedLogEvent_UNKNOWN.removeAll(capturedLogEvents);
+        capturedLogEvent_UNKNOWN.removeAll(capturedLogEvent_BADCARD);
         capturedLogEvent_UNKNOWN.removeAll(capturedLogEvent_NOCARD);
 
         assertEquals(1, capturedLogEvent_UNKNOWN.size());
@@ -274,16 +344,18 @@ public class HardwareManagementServiceTest {
 
         poll.invoke(service);
 
-        Mockito.verify(publisher, times(7)).publishEvent(publishCaptor_FAILED_READER_TYPE.capture());
-        Mockito.verify(log, times(2)).error(logCaptor_FAILED_READER_TYPE.capture());
+        Mockito.verify(publisher, times(9)).publishEvent(publishCaptor_FAILED_READER_TYPE.capture());
+        Mockito.verify(log, times(3)).error(logCaptor_FAILED_READER_TYPE.capture());
 
         var capturedPublishEvents_FAILED_READER_TYPE = publishCaptor_FAILED_READER_TYPE.getAllValues();
         capturedPublishEvents_FAILED_READER_TYPE.removeAll(capturedPublishEvents);
+        capturedPublishEvents_FAILED_READER_TYPE.removeAll(capturedPublishEvents_BADCARD);
         capturedPublishEvents_FAILED_READER_TYPE.removeAll(capturedPublishEvents_NOCARD);
         capturedPublishEvents_FAILED_READER_TYPE.removeAll(capturedPublishEvents_UNKNOWN);
 
         var capturedLogEvent_FAILED_READER_TYPE = logCaptor_FAILED_READER_TYPE.getAllValues();
         capturedLogEvent_FAILED_READER_TYPE.removeAll(capturedLogEvents);
+        capturedLogEvent_FAILED_READER_TYPE.removeAll(capturedLogEvent_BADCARD);
         capturedLogEvent_FAILED_READER_TYPE.removeAll(capturedLogEvent_NOCARD);
         capturedLogEvent_FAILED_READER_TYPE.removeAll(capturedLogEvent_UNKNOWN);
 
@@ -321,17 +393,19 @@ public class HardwareManagementServiceTest {
 
         poll.invoke(service);
 
-        Mockito.verify(publisher, times(8)).publishEvent(publishCaptor_FAILED_CONNECT.capture());
-        Mockito.verify(log, times(3)).error(logCaptor_FAILED_CONNECT.capture());
+        Mockito.verify(publisher, times(10)).publishEvent(publishCaptor_FAILED_CONNECT.capture());
+        Mockito.verify(log, times(4)).error(logCaptor_FAILED_CONNECT.capture());
 
         var capturedPublishEvents_FAILED_CONNECT = publishCaptor_FAILED_CONNECT.getAllValues();
         capturedPublishEvents_FAILED_CONNECT.removeAll(capturedPublishEvents);
+        capturedPublishEvents_FAILED_CONNECT.removeAll(capturedPublishEvents_BADCARD);
         capturedPublishEvents_FAILED_CONNECT.removeAll(capturedPublishEvents_NOCARD);
         capturedPublishEvents_FAILED_CONNECT.removeAll(capturedPublishEvents_UNKNOWN);
         capturedPublishEvents_FAILED_CONNECT.removeAll(capturedPublishEvents_FAILED_READER_TYPE);
 
         var capturedLogEvent_FAILED_CONNECT = logCaptor_FAILED_CONNECT.getAllValues();
         capturedLogEvent_FAILED_CONNECT.removeAll(capturedLogEvents);
+        capturedLogEvent_FAILED_CONNECT.removeAll(capturedLogEvent_BADCARD);
         capturedLogEvent_FAILED_CONNECT.removeAll(capturedLogEvent_NOCARD);
         capturedLogEvent_FAILED_CONNECT.removeAll(capturedLogEvent_UNKNOWN);
         capturedLogEvent_FAILED_CONNECT.removeAll(capturedLogEvent_FAILED_READER_TYPE);
