@@ -82,18 +82,21 @@ public class HardwareManagementService {
                     publisher.publishEvent(new TagInFieldEvent(this, true, uidToLong(uid), null));
                     log.error(DeviceStatusLogWrapper.builder()
                             .marker(MARKER_UNEXPECTED_READER_STATUS)
-                            .status(MESSAGE_NFC_READER_READ_NDEF_FAIL)
+                            .message(MESSAGE_NFC_READER_READ_NDEF_FAIL)
                             .deviceId(String.format(TO_8CHAR_PADDED_HEX, workingDeviceType[0]))
                             .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
                             .build());
                 }
             }
-            default -> log.error(DeviceStatusLogWrapper.builder()
-                    .marker(MARKER_UNEXPECTED_READER_STATUS)
-                    .status(MESSAGE_UNEXPECTED_READER_STATUS)
-                    .deviceId(String.format(TO_8CHAR_PADDED_HEX, workingDeviceType[0]))
-                    .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
-                    .build());
+            default -> {
+                publisher.publishEvent(new TagInFieldEvent(this, false, null, null));
+                log.error(DeviceStatusLogWrapper.builder()
+                        .marker(MARKER_UNEXPECTED_READER_STATUS)
+                        .message(MESSAGE_UNEXPECTED_READER_STATUS)
+                        .deviceId(String.format(TO_8CHAR_PADDED_HEX, workingDeviceType[0]))
+                        .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
+                        .build());
+            }
         }
     }
 
@@ -114,7 +117,7 @@ public class HardwareManagementService {
 
                 log.error(DeviceStatusLogWrapper.builder()
                         .marker(MARKER_CRITICAL_INFORMATION)
-                        .status(MESSAGE_NFC_GET_READER_TYPE_FAILURE)
+                        .message(MESSAGE_NFC_GET_READER_TYPE_FAILURE)
                         .deviceId(String.format(TO_8CHAR_PADDED_HEX, workingDeviceType[0]))
                         .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
                         .build());
@@ -143,7 +146,7 @@ public class HardwareManagementService {
                 return true;
             } else {
 
-                log.info(DeviceStatusLogWrapper.builder()
+                log.error(DeviceStatusLogWrapper.builder()
                         .marker(MARKER_CRITICAL_INFORMATION)
                         .message(MESSAGE_NFC_READER_CONNECT_FAILURE)
                         .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
