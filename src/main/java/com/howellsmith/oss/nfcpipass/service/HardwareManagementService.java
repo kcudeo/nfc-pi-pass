@@ -65,11 +65,11 @@ public class HardwareManagementService {
     }
 
     @Scheduled(fixedDelay = 1000L)
-    private void poll() {
+    private void poll() throws InterruptedException {
 
         if (!confirmDeviceConnection()) return;
 
-        var workingStatus = 0xFF;
+        int workingStatus;
         switch (workingStatus = device.GetCardIdEx(cardId, uid, uidSize)) {
             case NO_CARD -> {
                 publisher.publishEvent(new TagInFieldEvent(this, false, null, null));
@@ -106,7 +106,7 @@ public class HardwareManagementService {
      *
      * @return True for connected, False otherwise.
      */
-    private boolean confirmDeviceConnection() {
+    private boolean confirmDeviceConnection() throws InterruptedException {
 
         var workingStatus = 0;
         if (connected.get()) {
@@ -162,7 +162,7 @@ public class HardwareManagementService {
     /**
      * Extracted method to wait on the device to initialize/reset.
      */
-    private void waitForReset() {
+    private void waitForReset() throws InterruptedException {
         try {
             switch (workingDeviceType[0]) {
                 case UFR_NANO -> Thread.sleep(UFR_NANO_RESET_TIME);
@@ -176,6 +176,8 @@ public class HardwareManagementService {
                     .exceptionMessage(getMessage(e))
                     .stackTrace(getStackMap(e))
                     .build());
+
+            Thread.currentThread().interrupt();
         }
     }
 

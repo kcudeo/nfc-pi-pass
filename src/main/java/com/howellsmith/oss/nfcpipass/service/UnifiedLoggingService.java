@@ -1,8 +1,6 @@
 package com.howellsmith.oss.nfcpipass.service;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,7 +8,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.apache.logging.log4j.message.ObjectMessage;
 import org.apache.logging.log4j.spi.StandardLevel;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.util.Map;
@@ -71,8 +68,8 @@ public class UnifiedLoggingService {
             throw new IllegalArgumentException(MESSAGE_ILLEGAL_ARGUMENT_NULL);
 
         var wrapped = MessageWrapper.builder()
-                .source(getSource())
-                .data(o)
+                .stackMap(getSource())
+                .originalData(o)
                 .build();
 
         switch (level) {
@@ -125,10 +122,10 @@ public class UnifiedLoggingService {
         private static final String DATA = "_data";
 
         @JsonProperty(SOURCE)
-        private Map<String, Object> source;
+        private Map<String, Object> stackMap;
 
         @JsonProperty(DATA)
-        private Object data;
+        private Object originalData;
 
     }
 }

@@ -17,6 +17,9 @@
         <java.version>15</java.version>
         <jackson.version>2.12.1</jackson.version>
         <jacoco.version>0.8.6</jacoco.version>
+        <sonar.host.url>https://sonarcloud.io</sonar.host.url>
+        <sonar.organization>howellsmith-oss</sonar.organization>
+        <sonar.projectKey>nfc-pi-pass</sonar.projectKey>
     </properties>
 
     <dependencies>

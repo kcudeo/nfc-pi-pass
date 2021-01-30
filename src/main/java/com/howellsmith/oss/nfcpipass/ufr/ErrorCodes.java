@@ -53,4 +53,5 @@ public class ErrorCodes {
     public static final int FT_STATUS_ERROR_8 = 0xA7;
     public static final int FT_STATUS_ERROR_9 = 0xA8;
 
+    private ErrorCodes(){}
 }
