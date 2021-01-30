@@ -19,7 +19,8 @@
         <jacoco.version>0.8.6</jacoco.version>
         <sonar.host.url>https://sonarcloud.io</sonar.host.url>
         <sonar.organization>howellsmith-oss</sonar.organization>
-        <sonar.projectKey>nfc-pi-pass</sonar.projectKey>
+        <sonar.projectKey>kcudeo_nfc-pi-pass</sonar.projectKey>
+        <sonar.coverage.jacoco.xmlReportPaths>target/site/jacoco/jacoco.xml</sonar.coverage.jacoco.xmlReportPaths>
     </properties>
 
     <dependencies>
@@ -167,6 +168,11 @@
                 <groupId>org.jacoco</groupId>
                 <artifactId>jacoco-maven-plugin</artifactId>
                 <version>${jacoco.version}</version>
+                <configuration>
+                    <excludes>
+                        <exclude>src/main/java/com/howellsmith/oss/nfcpipass/service/UnifiedLoggingService.java</exclude>
+                    </excludes>
+                </configuration>
                 <executions>
                     <execution>
                         <goals>
