@@ -1,4 +1,4 @@
-package com.howellsmith.oss.nfcpipass.model;
+package com.howellsmith.oss.nfcpipass.model.domain;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
