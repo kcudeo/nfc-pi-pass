@@ -71,10 +71,10 @@ public class HardwareManagementService {
 
         int workingStatus;
         switch (workingStatus = device.GetCardIdEx(cardId, uid, uidSize)) {
-            case NO_CARD -> {
+            case NO_CARD:
                 publisher.publishEvent(new TagInFieldEvent(this, false, null, null));
-            }
-            case DL_OK -> {
+                break;
+            case DL_OK:
                 var data = new byte[1000];
                 if ((workingStatus = device.ReadNdefRecord_Text(data)) == DL_OK) {
                     publisher.publishEvent(new TagInFieldEvent(this, true, uidToLong(uid), new String(data).trim()));
@@ -87,8 +87,8 @@ public class HardwareManagementService {
                             .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
                             .build());
                 }
-            }
-            default -> {
+                break;
+            default:
                 publisher.publishEvent(new TagInFieldEvent(this, false, null, null));
                 log.error(DeviceStatusLogWrapper.builder()
                         .marker(MARKER_UNEXPECTED_READER_STATUS)
@@ -96,7 +96,6 @@ public class HardwareManagementService {
                         .deviceId(String.format(TO_8CHAR_PADDED_HEX, workingDeviceType[0]))
                         .status(String.format(TO_8CHAR_PADDED_HEX, workingStatus))
                         .build());
-            }
         }
     }
 
@@ -165,9 +164,14 @@ public class HardwareManagementService {
     private void waitForReset() throws InterruptedException {
         try {
             switch (workingDeviceType[0]) {
-                case UFR_NANO -> Thread.sleep(UFR_NANO_RESET_TIME);
-                case UFR_NANO_ONLINE -> Thread.sleep(UFR_NANO_ONLINE_RESET_TIME);
-                default -> Thread.sleep(UFR_GENERIC_DEVICE);
+                case UFR_NANO:
+                    Thread.sleep(UFR_NANO_RESET_TIME);
+                    break;
+                case UFR_NANO_ONLINE:
+                    Thread.sleep(UFR_NANO_ONLINE_RESET_TIME);
+                    break;
+                default:
+                    Thread.sleep(UFR_GENERIC_DEVICE);
             }
         } catch (InterruptedException e) {
             log.error(ExceptionalErrorLog.builder()
