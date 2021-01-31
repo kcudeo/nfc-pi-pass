@@ -38,7 +38,7 @@ simply adjust the steps for your operating system.
 
 ### Setup
 
-#### Getting the Raspberry Pi Setup
+#### Getting the Raspberry Pi Prepped
 
 This step assumes that you are starting from scratch with an empty MicroSD card. If you already have your Pi setup, you
 can skip this step.
@@ -64,7 +64,7 @@ Once connected, configure your Pi as needed.
 Update and Upgrade all default packages. Then install some needed dependencies.
 - `sudo apt-get update`
 - `sudo apt-get upgrade`
-- `sudo apt-get install zip git mongodb build-essential openjdk-11-jdk`
+- `sudo apt-get install zip git mongodb build-essential openjdk-11-jdk maven`
 - `sudo reboot`
 
 #### Installing the Drivers
@@ -162,7 +162,91 @@ The output of this command should look something similar to the follow:
 
 If you don't get a success message, go back through the steps and see what went wrong.
 
+#### Enabling USB Gadget Mode
+
+These are modified instructions from this [original post](http://www.isticktoit.net/?p=1383).
+
+Start off by enabling the special device tree and loading the libcomposite kernel module.
+- `echo "dtoverlay=dwc2" | sudo tee -a /boot/config.txt`
+- `echo "dwc2" | sudo tee -a /etc/modules`
+- `echo "libcomposite" | sudo tee -a /etc/modules`
+
+Now, we are only concerned with the keyboard aspect of the functionality that is offered. This will create a system 
+config script that runs on boot. 
+- `sudo touch /usr/bin/pipass_keyboard`
+- `sudo chmod +x /usr/bin/pipass_keyboard`
+- `sudo nano /usr/bin/pipass_keyboard`
+
+Enter the following in the file, save and close:
+>```text
+>#!/bin/bash
+>cd /sys/kernel/config/usb_gadget/
+>mkdir -p isticktoit
+>cd isticktoit
+>echo 0x1d6b > idVendor # Linux Foundation
+>echo 0x0104 > idProduct # Multifunction Composite Gadget
+>echo 0x0100 > bcdDevice # v1.0.0
+>echo 0x0200 > bcdUSB # USB2
+>mkdir -p strings/0x409
+>echo "fedcba9876543210" > strings/0x409/serialnumber
+>echo "Tobias Girstmair" > strings/0x409/manufacturer
+>echo "iSticktoit.net USB Device" > strings/0x409/product
+>mkdir -p configs/c.1/strings/0x409
+>echo "Config 1: ECM network" > configs/c.1/strings/0x409/configuration
+>echo 250 > configs/c.1/MaxPower
+>
+># Add functions here
+>mkdir -p functions/hid.usb0
+>echo 1 > functions/hid.usb0/protocol
+>echo 1 > functions/hid.usb0/subclass
+>echo 8 > functions/hid.usb0/report_length
+>echo -ne \\x05\\x01\\x09\\x06\\xa1\\x01\\x05\\x07\\x19\\xe0\\x29\\xe7\\x15\\x00\\x25\\x01\\x75\\x01\\x95\\x08\\x81\\x02\\x95\\x01\\x75\\x08\\x81\\x03\\x95\\x05\\x75\\x01\\x05\\x08\\x19\\x01\\x29\\x05\\x91\\x02\\x95\\x01\\x75\\x03\\x91\\x03\\x95\\x06\\x75\\x08\\x15\\x00\\x25\\x65\\x05\\x07\\x19\\x00\\x29\\x65\\x81\\x00\\xc0 > functions/hid.usb0/report_desc
+>ln -s functions/hid.usb0 configs/c.1/
+># End functions
+>
+>ls /sys/class/udc > UDC
+>```
+
+Then to get things started at boot:
+- `sudo nano /etc/rc.local`
+
+Add the following before the `exit 0` line in that file:
+> `/usr/bin/pipass_keyboard`
+
+Finally, reboot to initialize.
+- `sudo reboot`
+
 #### Installing the Service
+
+It is to be expected that some modifications will be made to the code in order to customize the experience. This is 
+particularly true when it comes to logging. The file `src/main/resources/log4j2-spring.xml` should be updated with the
+appenders that make sense for you. Feel free to fork the project and make modifications as you see fit. 
+
+To get started, clone this repo to a location of your choosing.
+- `mkdir ~/projects`
+- `cd ~/projects`
+- `git clone https://github.com/kcudeo/nfc-pi-pass.git`
+- `cd nfc-pi-pass/`
+
+If you're comfortable with Splunk, [have an instance installed](https://hub.docker.com/r/splunk/splunk/), and decide to take that route, then you'll need to set a
+few environment variables. For this project I have setup a generic index with an `HTTP Event Collector` that expects a
+`Source Type` of `Structured` -> `_json`. I have specifically disabled HTTPS in the settings for the event collector 
+because all data flows through an [SSH tunnel](https://www.ssh.com/ssh/tunneling/example) to the remote Splunk server. 
+- `nano ~/.bashrc`
+
+Add the following to the very end of the file. Of course, your values will be different.
+>```text
+>export SPLUNK_HOST=localhost
+>export SPLUNK_PORT=48088
+>export SPLUNK_TOKEN=019f60ac-71e1-4871-950f-eb85a360a843
+>```
+
+After saving, be sure to source the changes to apply them.
+- `source ~/.bashrc`
+
+Now, run the application. Dependencies will download and the server should start.
+- `mvn spring-boot:run`
+
 
 
 ---
