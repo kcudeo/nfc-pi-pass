@@ -131,8 +131,11 @@ class HardwareManagementServiceTest {
 
         for (var event : capturedPublishEvents)
             switch (event.getClass().getSimpleName()) {
-                case DCSE -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
-                case TIFE -> expectedEvent1 = (TagInFieldEvent) event;
+                case DCSE:
+                    expectedEvent0 = (DeviceConnectionStatusEvent) event;
+                    break;
+                case TIFE:
+                    expectedEvent1 = (TagInFieldEvent) event;
             }
 
         assertNotNull(expectedEvent0);
@@ -197,8 +200,11 @@ class HardwareManagementServiceTest {
 
         for (var event : capturedPublishEvents)
             switch (event.getClass().getSimpleName()) {
-                case DCSE -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
-                case TIFE -> expectedEvent1 = (TagInFieldEvent) event;
+                case DCSE:
+                    expectedEvent0 = (DeviceConnectionStatusEvent) event;
+                    break;
+                case TIFE:
+                    expectedEvent1 = (TagInFieldEvent) event;
             }
 
         assertNotNull(expectedEvent0);
@@ -247,8 +253,11 @@ class HardwareManagementServiceTest {
 
         for (var event : capturedPublishEvents)
             switch (event.getClass().getSimpleName()) {
-                case DCSE -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
-                case TIFE -> expectedEvent1 = (TagInFieldEvent) event;
+                case DCSE:
+                    expectedEvent0 = (DeviceConnectionStatusEvent) event;
+                    break;
+                case TIFE:
+                    expectedEvent1 = (TagInFieldEvent) event;
             }
 
         assertNotNull(expectedEvent0);
@@ -298,8 +307,11 @@ class HardwareManagementServiceTest {
 
         for (var event : capturedPublishEvents)
             switch (event.getClass().getSimpleName()) {
-                case DCSE -> expectedEvent0 = (DeviceConnectionStatusEvent) event;
-                case TIFE -> expectedEvent1 = (TagInFieldEvent) event;
+                case DCSE:
+                    expectedEvent0 = (DeviceConnectionStatusEvent) event;
+                    break;
+                case TIFE:
+                    expectedEvent1 = (TagInFieldEvent) event;
             }
 
         assertNotNull(expectedEvent0);
