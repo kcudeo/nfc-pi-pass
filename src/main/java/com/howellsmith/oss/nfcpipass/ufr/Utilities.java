@@ -26,7 +26,7 @@ public class Utilities {
     private static final String LIB_PART_BLANK = "";
     private static final String LIB_POSTFIX_SEPARATOR = "-";
     private static final String LIB_PREFIX_LIB = "lib";
-    private static final String LIB_PLATFORM_ARM = "armel";
+    private static final String LIB_PLATFORM_ARM = "armhf";
     private static final String LIB_PLATFORM_PPC = "ppc";
     private static final String LIB_PLATFORM_X86 = "x86";
     private static final String LIB_PLATFORM_64BIT = "_64";
